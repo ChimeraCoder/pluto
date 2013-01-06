@@ -1,0 +1,38 @@
+# bzr knit index 8
+
+Arch-1:jdub@perkypants.org--projects%planet--devel--1.0--base-0 fulltext 0 6188  :
+Arch-1:jdub@perkypants.org--projects%planet--devel--1.0--patch-2 line-delta 6188 361 0 :
+Arch-1:jdub@perkypants.org--projects%planet--devel--1.0--patch-3 line-delta 6549 446 1 :
+Arch-1:jdub@perkypants.org--projects%planet--devel--1.0--patch-4 line-delta 6995 506 2 :
+Arch-1:jdub@perkypants.org--projects%planet--devel--1.0--patch-9 line-delta 7501 182 3 :
+Arch-1:jdub@perkypants.org--projects%planet--devel--1.0--patch-12 line-delta 7683 155 4 :
+Arch-1:jdub@perkypants.org--projects%planet--devel--1.0--patch-13 line-delta 7838 173 5 :
+jdub@svengali-20060424173044-d0b3b30c6b934ec4 line-delta 8011 329 6 :
+rubys@intertwingly.net-20060421180025-a09e8a75b44df0dc line-delta 8340 302 6 :
+rubys@intertwingly.net-20060422124840-1b2ba6db416d5b9f line-delta 8642 321 8 :
+rubys@intertwingly.net-20060423021110-739e517f1b2cfc58 line-delta 8963 358 9 :
+jdub@svengali-20060424173528-2b894b48bffc2a45 line-delta 9321 113 10 7 :
+rubys@intertwingly.net-20060424181443-55864de13418cca5 line-delta 9434 179 10 :
+jdub@svengali-20060426221956-522d023516f7029f line-delta 9613 113 12 11 :
+mary@puzzling.org-20060409091607-f8be8771fec38fcf line-delta 9726 2200 6 :
+mary@puzzling.org-20060429000736-a6fd9a1384c055a7 line-delta 11926 897 14 13 :
+mary@puzzling.org-20060429002526-9af129367b348f61 line-delta 12823 280 15 :
+mary@puzzling.org-20060429004624-801bf5c184f21d0d line-delta 13103 196 16 :
+mary@puzzling.org-20060429005440-aa0e8db9dc0048dd line-delta 13299 292 17 :
+jdub@svengali-20060429151054-8e288fad1fa03425 line-delta 13591 177 18 :
+rubys@intertwingly.net-20060501135225-595cc1813b986b49 line-delta 13768 883 19 :
+mary@puzzling.org-20060503032448-b4df08fe14834cca line-delta 14651 618 20 :
+rubys@intertwingly.net-20060508144742-cbb3ebf9185a2c8a line-delta 15269 524 21 :
+rubys@intertwingly.net-20060509120437-841adf1934c62873 line-delta 15793 316 22 :
+mgedmin@b4net.lt-20060505211144-2a03f93992745337 line-delta 16109 212 21 :
+jdub@svengali-20060514192250-46a81ffb8850245e line-delta 16321 205 23 :
+jdub@svengali-20060522020518-e69d9457c23ce0d3 line-delta 16526 824 24 25 :
+jdub@svengali-20060522031145-428b8b9a1a0ed9e4 line-delta 17350 120 26 :
+jdub@svengali-20060522033613-656362b3c4032c76 line-delta 17470 188 27 :
+rubys@intertwingly.net-20060522144746-1b4752cc5078711c line-delta 17658 1769 28 :
+jdub@svengali-20060524171812-96152f874b6d5627 line-delta 19427 196 29 :
+jdub@svengali-20060524171959-2ef7d5d2c7618352 line-delta 19623 157 .jdub@svengali-20060524171812-96152f874b6d5627 :
+jdub@svengali-20060524172051-f653c1266a930319 line-delta 19780 151 .jdub@svengali-20060524171959-2ef7d5d2c7618352 :
+jdub@svengali-20060531150517-8e4ef08c8c2caf53 line-delta 19931 207 .jdub@svengali-20060524172051-f653c1266a930319 :
+jdub@svengali-20060531150522-2fbcb97b0c3b56b2 line-delta 20138 290 .jdub@svengali-20060531150517-8e4ef08c8c2caf53 :
+jdub@perkypants.org-20060726235324-b2ba827c2b7638e0 line-delta 20428 143 34 :
