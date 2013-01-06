@@ -1,14 +1,11 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
     "github.com/gorilla/sessions"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"net/url"
 	"text/template"
 )
 
@@ -29,71 +26,10 @@ var (
 	//APP_SECRET = os.Getenv("APP_SECRET")
 )
 
-const PROFILE_SESSION = "profile"
 
-func serveProfile(w http.ResponseWriter, r *http.Request, c *Credentials) {
+func serveProfile(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "This is where the user's profile information goes!")
 	return
-}
-
-func serveLogin(w http.ResponseWriter, r *http.Request) {
-	switch {
-	//TODO use oauth library to simplify the following
-	//Only serve GET requests
-	case r.Method == "GET":
-		{
-			vals, err := url.ParseQuery(r.URL.RawQuery)
-			if err != nil {
-				panic(err)
-			}
-			code := vals.Get("code")
-			v := url.Values{}
-			v.Set("code", code)
-			v.Set("app_id", APP_ID)
-			v.Set("app_secret", APP_SECRET)
-			response, err := http.PostForm("https://clef.io/api/authorize", v)
-
-			if err != nil {
-				panic(err)
-			} else {
-				bts, err := ioutil.ReadAll(response.Body)
-				if err != nil {
-					panic(err)
-				}
-				result := make(map[string]interface{})
-				json.Unmarshal(bts, &result)
-				access_token, ok := result["access_token"].(string)
-				if !ok {
-					log.Print("Something funky happened here: %v", result)
-				}
-
-				v := url.Values{}
-				v.Set("access_token", access_token)
-				response, err := http.PostForm("https://clef.io/api/info", v)
-				if err != nil {
-					panic(err)
-				}
-				bts, err = ioutil.ReadAll(response.Body)
-				if err != nil {
-					panic(err)
-				}
-				err = json.Unmarshal(bts, &result)
-                log.Printf("Result: %v", result)
-
-                session, _ := store.Get(r, PROFILE_SESSION)
-                session.Values["access_token"] = access_token
-                session.Save(r,w)
-
-				//http.StatusFound is just an integer, so you can specify 302 directly
-				http.Redirect(w, r, "/profile", http.StatusFound)
-			}
-		}
-	//Return an error for all other HTTP methods
-	default:
-		{
-			http.Error(w, "Method not supported", http.StatusMethodNotAllowed)
-		}
-	}
 }
 
 func serveHome(w http.ResponseWriter, r *http.Request) {
@@ -104,14 +40,13 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 	} else {
 		//You may want to refactor this, but this is how template inheritance works in Go
 		s1, _ := template.ParseFiles("templates/base.tmpl", "templates/index.tmpl")
-        s1.ExecuteTemplate(w, "base", map[string]string{"APP_ID" : APP_ID})
+        s1.ExecuteTemplate(w, "base", nil)
 	}
 }
 
 func main() {
 	http.HandleFunc("/", serveHome)
-	http.HandleFunc("/login", serveLogin)
-	http.Handle("/profile", &authHandler{serveProfile, false})
+	http.HandleFunc("/profile", serveProfile)
 	http.Handle("/static/", http.FileServer(http.Dir("public")))
 
 	if err := http.ListenAndServe(*httpAddr, nil); err != nil {
