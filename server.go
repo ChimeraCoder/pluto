@@ -3,11 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
+	"time"
+	"os"
 	"github.com/gorilla/sessions"
 	"labix.org/v2/mgo"
 	"log"
 	"net/http"
 	"text/template"
+	rss "github.com/jteeuwen/go-pkg-rss" 
 )
 
 const BCRYPT_COST = 12
@@ -67,6 +70,26 @@ func withCollection(collection_name string, f func(*mgo.Collection) error) error
 	defer mgo_session.Close()
 	coll := mgo_session.DB(MONGODB_DATABASE).C(collection_name)
 	return f(coll)
+}
+
+func scrapeRss(url string) {
+	timeout := 100
+	feed := rss.New(timeout, true, chanHandler, itemHandler)
+}
+
+func chanHandler(feed *rss.Feed, newchannels []*rss.Channel) {
+	uri := "http://blog.goneill.net/rss";
+	for {
+		if err := feed.Fetch(uri, nil); err != nil {
+			fmt.Fprintf(os.Stderr, "[e.fetch] %s: %s", uri, err)
+			return
+		}
+
+		<-time.After(time.Duration(feed.SecondsTillUpdate() * 1e9))
+	}
+}
+
+func itemHandler(feed *rss.Feed, ch *rss.Channel, newitems []*rss.Item) {
 }
 
 func main() {
