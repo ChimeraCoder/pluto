@@ -1,6 +1,7 @@
 package main
 
 import (
+	rss "./go-pkg-rss"
 	"flag"
 	"fmt"
 	"time"
@@ -74,11 +75,8 @@ func withCollection(collection_name string, f func(*mgo.Collection) error) error
 
 func scrapeRss(url string) {
 	timeout := 100
-	feed := rss.New(timeout, true, chanHandler, itemHandler)
-}
-
-func chanHandler(feed *rss.Feed, newchannels []*rss.Channel) {
 	uri := "http://blog.goneill.net/rss";
+	feed := rss.New(timeout, true, chanHandler, itemHandler)
 	for {
 		if err := feed.Fetch(uri, nil); err != nil {
 			fmt.Fprintf(os.Stderr, "[e.fetch] %s: %s", uri, err)
@@ -89,7 +87,20 @@ func chanHandler(feed *rss.Feed, newchannels []*rss.Channel) {
 	}
 }
 
+func chanHandler(feed *rss.Feed, newchannels []*rss.Channel) {
+}
+
 func itemHandler(feed *rss.Feed, ch *rss.Channel, newitems []*rss.Item) {
+	for a := range newitems {
+		savePost(newitems[a])
+	}
+}
+
+//Given an RSS item, save it in mongodb
+func savePost(post rss.Item) error {
+	return withCollection("blogposts", func(c *mgo.Collection) error {
+		return c.Insert(post)
+	})
 }
 
 func main() {
