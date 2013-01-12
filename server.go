@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-    "github.com/gorilla/sessions"
+	"github.com/gorilla/sessions"
 	"log"
 	"net/http"
 	"text/template"
@@ -14,7 +14,7 @@ const BCRYPT_COST = 12
 var (
 	httpAddr        = flag.String("addr", ":8000", "HTTP server address")
 	baseTmpl string = "templates/base.tmpl"
-    store = sessions.NewCookieStore([]byte(COOKIE_SECRET))
+	store           = sessions.NewCookieStore([]byte(COOKIE_SECRET))
 
 	//The following three variables can be defined using environment variables
 	//to avoid committing them by mistake
@@ -25,7 +25,6 @@ var (
 	//APP_ID = os.Getenv("APP_ID")
 	//APP_SECRET = os.Getenv("APP_SECRET")
 )
-
 
 func serveProfile(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "This is where the user's profile information goes!")
@@ -40,7 +39,7 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 	} else {
 		//You may want to refactor this, but this is how template inheritance works in Go
 		s1, _ := template.ParseFiles("templates/base.tmpl", "templates/index.tmpl")
-        s1.ExecuteTemplate(w, "base", nil)
+		s1.ExecuteTemplate(w, "base", nil)
 	}
 }
 
