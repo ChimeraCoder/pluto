@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/gorilla/sessions"
+    "labix.org/v2/mgo"
 	"log"
 	"net/http"
 	"text/template"
@@ -15,6 +16,9 @@ var (
 	httpAddr        = flag.String("addr", ":8000", "HTTP server address")
 	baseTmpl string = "templates/base.tmpl"
 	store           = sessions.NewCookieStore([]byte(COOKIE_SECRET))
+    mongodb_session *mgo.Session
+
+
 
 	//The following three variables can be defined using environment variables
 	//to avoid committing them by mistake
@@ -44,6 +48,18 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+
+
+
+    var err error
+    mongodb_session, err = mgo.Dial(MONGODB_URL)
+    if err != nil {
+        panic(err)
+    }
+
+    err = mongodb_session.DB(MONGODB_DATABASE).Login(MONGODB_USERNAME, MONGODB_PASSWORD)
+
+
 	http.HandleFunc("/", serveHome)
 	http.HandleFunc("/profile", serveProfile)
 	http.Handle("/static/", http.FileServer(http.Dir("public")))
