@@ -12,7 +12,6 @@ import (
 	"log"
 	"net/http"
 	"text/template"
-	rss "github.com/jteeuwen/go-pkg-rss" 
 )
 
 const BCRYPT_COST = 12
@@ -88,8 +87,8 @@ func chanHandler(feed *rss.Feed, newchannels []*rss.Channel) {
 }
 
 func itemHandler(feed *rss.Feed, ch *rss.Channel, newitems []*rss.Item) {
-	for a := range newitems {
-		savePost(newitems[a])
+	for _, item := range newitems {
+		savePost(*item)
 	}
 }
 
