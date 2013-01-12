@@ -1,6 +1,7 @@
 package main
 
 import (
+	rss "./go-pkg-rss"
 	"flag"
 	"fmt"
 	"github.com/gorilla/sessions"
@@ -67,6 +68,13 @@ func withCollection(collection_name string, f func(*mgo.Collection) error) error
 	defer mgo_session.Close()
 	coll := mgo_session.DB(MONGODB_DATABASE).C(collection_name)
 	return f(coll)
+}
+
+//Given an RSS feed, save it in mongodb
+func savePost(post rss.Item) error {
+	return withCollection("blogposts", func(c *mgo.Collection) error {
+		return c.Insert(post)
+	})
 }
 
 func main() {
