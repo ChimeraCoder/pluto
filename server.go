@@ -4,14 +4,14 @@ import (
 	rss "./go-pkg-rss"
 	"flag"
 	"fmt"
-	"time"
-	"os"
 	"github.com/gorilla/pat"
 	"github.com/gorilla/sessions"
 	"labix.org/v2/mgo"
 	"log"
 	"net/http"
+	"os"
 	"text/template"
+	"time"
 )
 
 const BCRYPT_COST = 12
@@ -71,7 +71,7 @@ func withCollection(collection_name string, f func(*mgo.Collection) error) error
 
 func scrapeRss(url string) {
 	timeout := 100
-	uri := "http://blog.goneill.net/rss";
+	uri := "http://blog.goneill.net/rss"
 	feed := rss.New(timeout, true, chanHandler, itemHandler)
 	for {
 		if err := feed.Fetch(uri, nil); err != nil {
