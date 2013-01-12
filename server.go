@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 	"os"
+	"github.com/gorilla/pat"
 	"github.com/gorilla/sessions"
 	"labix.org/v2/mgo"
 	"log"
@@ -38,15 +39,11 @@ func serveProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 func serveHome(w http.ResponseWriter, r *http.Request) {
-	//The "/" path will be matched by default, so we need to check for a 404 error
-	//you can use mux or something similar to refactor this part
-	if r.URL.Path != "/" {
-		http.Error(w, "Not Found", http.StatusNotFound)
-	} else {
-		//You may want to refactor this, but this is how template inheritance works in Go
-		s1, _ := template.ParseFiles("templates/base.tmpl", "templates/index.tmpl")
-		s1.ExecuteTemplate(w, "base", nil)
+	s1, err := template.ParseFiles("templates/base.tmpl", "templates/index.tmpl")
+	if err != nil {
+		panic(err)
 	}
+	s1.ExecuteTemplate(w, "base", nil)
 }
 
 func mongodbSession() *mgo.Session {
@@ -111,11 +108,14 @@ func main() {
 		panic(err)
 	}
 
+	r := pat.New()
+
 	err = mongodb_session.DB(MONGODB_DATABASE).Login(MONGODB_USERNAME, MONGODB_PASSWORD)
 
-	http.HandleFunc("/", serveHome)
-	http.HandleFunc("/profile", serveProfile)
+	r.Get("/", serveHome)
+	r.Get("/profile", serveProfile)
 	http.Handle("/static/", http.FileServer(http.Dir("public")))
+	http.Handle("/", r)
 
 	if err := http.ListenAndServe(*httpAddr, nil); err != nil {
 		log.Fatalf("Error listening, %v", err)
