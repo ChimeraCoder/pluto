@@ -111,14 +111,14 @@ func main() {
 
 	err = mongodb_session.DB(MONGODB_DATABASE).Login(MONGODB_USERNAME, MONGODB_PASSWORD)
 
-	guid_index := Index{
-		Key:        []String{"guid"},
+	guid_index := mgo.Index{
+		Key:        []string{"guid"},
 		Unique:     true,
 		DropDups:   true,
 		Background: true,
 		Sparse:     true,
 	}
-	mogodb_session.EnsureIndex(guid_index)
+	mongodb_session.DB(MONGODB_DATABASE).C("blogposts").EnsureIndex(guid_index)
 
 	r.Get("/", serveHome)
 	r.Get("/profile", serveProfile)
