@@ -1,5 +1,5 @@
 compile:
-	go build -o build/a.out server.go conf.go mongo.go
+	go build -o build/a.out server.go conf.go mongo.go views.go
 
 clean:
 	go clean
