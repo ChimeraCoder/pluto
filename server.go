@@ -102,10 +102,13 @@ func savePost(post rss.Item) error {
 func main() {
 
 	var err error
+
+	log.Print("Dialing mongodb database")
 	mongodb_session, err = mgo.Dial(MONGODB_URL)
 	if err != nil {
 		panic(err)
 	}
+	log.Print("Succesfully dialed mongodb database")
 
 	r := pat.New()
 
@@ -120,9 +123,12 @@ func main() {
 	}
 	mongodb_session.DB(MONGODB_DATABASE).C("blogposts").EnsureIndex(guid_index)
 
-	r.Get("/", serveHome)
-	r.Get("/profile", serveProfile)
+	//Order of routes matters
+	//Routes *will* match prefixes 
+
 	http.Handle("/static/", http.FileServer(http.Dir("public")))
+	r.Get("/profile", serveProfile)
+	r.Get("/", serveHome)
 	http.Handle("/", r)
 
 	if err := http.ListenAndServe(*httpAddr, nil); err != nil {
