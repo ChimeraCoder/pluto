@@ -6,15 +6,18 @@ import (
 	"fmt"
 	"github.com/gorilla/pat"
 	"github.com/gorilla/sessions"
+	"io/ioutil"
 	"labix.org/v2/mgo"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
 const BCRYPT_COST = 12
 const RSS_TIMEOUT = 100
+const FEEDS_LIST_FILENAME = "feeds_list.txt"
 
 var (
 	httpAddr        = flag.String("addr", ":8000", "HTTP server address")
@@ -31,11 +34,7 @@ var (
 	//APP_SECRET = os.Getenv("APP_SECRET")
 )
 
-//Create an array of URLs that point to the RSS feeds for each of the fellows' blogs
-var FELLOW_BLOGS = []string{"http://blog.goneill.net/rss"}
-
 func scrapeRss(uri string) {
-	uri = "http://blog.goneill.net/rss"
 	feed := rss.New(RSS_TIMEOUT, true, chanHandler, itemHandler)
 	for {
 		if err := feed.Fetch(uri, nil); err != nil {
@@ -77,10 +76,9 @@ func main() {
 	}
 	log.Print("Succesfully dialed mongodb database")
 
-	r := pat.New()
-
 	err = mongodb_session.DB(MONGODB_DATABASE).Login(MONGODB_USERNAME, MONGODB_PASSWORD)
 
+	r := pat.New()
 	//Create a unique index on 'guid', so that entires will not be duplicated
 	//Any duplicate entries will be dropped silently when insertion is attempted
 	guid_index := mgo.Index{
@@ -92,9 +90,19 @@ func main() {
 	}
 	mongodb_session.DB(MONGODB_DATABASE).C("blogposts").EnsureIndex(guid_index)
 
+	//Read a list of all fellows' rss feeds from a file
+	bts, err := ioutil.ReadFile(FEEDS_LIST_FILENAME)
+	if err != nil {
+		panic(err)
+	}
+	feed_urls := strings.Split(strings.Trim(string(bts), "\n\r"), "\n")
+
 	//Set off a separate goroutine for each fellow's blog to keep it continuously up-to-date
-	for _, rss_uri := range FELLOW_BLOGS {
-		go scrapeRss(rss_uri)
+	for _, feed_url := range feed_urls {
+		log.Printf("Found %s", feed_url)
+		go func(uri string) {
+			scrapeRss(uri)
+		}(feed_url)
 	}
 
 	//Order of routes matters
