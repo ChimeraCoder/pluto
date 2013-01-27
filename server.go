@@ -14,11 +14,12 @@ import (
 )
 
 const BCRYPT_COST = 12
+const RSS_TIMEOUT = 100
 
 var (
-	httpAddr               = flag.String("addr", ":8000", "HTTP server address")
-	baseTmpl        string = "templates/base.tmpl"
-	store                  = sessions.NewCookieStore([]byte(COOKIE_SECRET))
+	httpAddr        = flag.String("addr", ":8000", "HTTP server address")
+	baseTmpl string = "templates/base.tmpl"
+	store           = sessions.NewCookieStore([]byte(COOKIE_SECRET))
 
 	//The following three variables can be defined using environment variables
 	//to avoid committing them by mistake
@@ -30,25 +31,29 @@ var (
 	//APP_SECRET = os.Getenv("APP_SECRET")
 )
 
+//Create an array of URLs that point to the RSS feeds for each of the fellows' blogs
+var FELLOW_BLOGS = []string{"http://blog.goneill.net/rss"}
 
-func scrapeRss(url string) {
-	timeout := 100
-	uri := "http://blog.goneill.net/rss"
-	feed := rss.New(timeout, true, chanHandler, itemHandler)
+func scrapeRss(uri string) {
+	uri = "http://blog.goneill.net/rss"
+	feed := rss.New(RSS_TIMEOUT, true, chanHandler, itemHandler)
 	for {
 		if err := feed.Fetch(uri, nil); err != nil {
 			fmt.Fprintf(os.Stderr, "[e.fetch] %s: %s", uri, err)
 			return
 		}
 
+		log.Printf("Sleeping for %d seconds on %s", feed.SecondsTillUpdate(), uri)
 		<-time.After(time.Duration(feed.SecondsTillUpdate() * 1e9))
 	}
 }
 
 func chanHandler(feed *rss.Feed, newchannels []*rss.Channel) {
+	log.Printf("Found %d new channel(s) in %s", len(newchannels), feed.Url)
 }
 
 func itemHandler(feed *rss.Feed, ch *rss.Channel, newitems []*rss.Item) {
+	log.Printf("Found %d new item(s) in %s", len(newitems), feed.Url)
 	for _, item := range newitems {
 		savePost(*item)
 	}
@@ -76,6 +81,8 @@ func main() {
 
 	err = mongodb_session.DB(MONGODB_DATABASE).Login(MONGODB_USERNAME, MONGODB_PASSWORD)
 
+	//Create a unique index on 'guid', so that entires will not be duplicated
+	//Any duplicate entries will be dropped silently when insertion is attempted
 	guid_index := mgo.Index{
 		Key:        []string{"guid"},
 		Unique:     true,
@@ -85,9 +92,13 @@ func main() {
 	}
 	mongodb_session.DB(MONGODB_DATABASE).C("blogposts").EnsureIndex(guid_index)
 
+	//Set off a separate goroutine for each fellow's blog to keep it continuously up-to-date
+	for _, rss_uri := range FELLOW_BLOGS {
+		go scrapeRss(rss_uri)
+	}
+
 	//Order of routes matters
 	//Routes *will* match prefixes 
-
 	http.Handle("/static/", http.FileServer(http.Dir("public")))
 	r.Get("/profile", serveProfile)
 	r.Get("/", serveHome)

@@ -1,11 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"text/template"
-    "fmt"
 )
-
 
 func serveProfile(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "This is where the user's profile information goes!")
@@ -19,5 +18,3 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 	}
 	s1.ExecuteTemplate(w, "base", nil)
 }
-
-
