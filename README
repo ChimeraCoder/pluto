@@ -1,3 +1,32 @@
+Configuration & Setup
+-----------------------
+
+You will need to add a file `conf.go` which includes definitions for the configuration variables:
+
+````go
+
+package main
+
+import "os" #You can delete this import if none of your configuration variables are defined as environment variables
+
+var COOKIE_SECRET = ""
+var MONGODB_USERNAME = ""
+var MONGODB_PASSWORD = ""
+var MONGODB_URL =  ""
+var MONGODB_DATABASE = ""
+````
+
+*If you are running mongodb locally* (or if your mongodb instance isn't protected by a username/password, you can ommit the `MONGODB_USERNAME` and `MONGODB_PASSWORD` variables; however, you will need to delete the call to the Login method:
+
+````go
+	err = mongodb_session.DB(MONGODB_DATABASE).Login(MONGODB_USERNAME, MONGODB_PASSWORD)
+````
+would then be replaced with 
+
+````go
+	err = mongodb_session.DB(MONGODB_DATABASE)
+````
+
 License
 -------
 
