@@ -7,7 +7,7 @@ You will need to add a file `conf.go` which includes definitions for the configu
 
 package main
 
-import "os" #You can delete this import if none of your configuration variables are defined as environment variables
+import "os" //You can delete this import if none of your configuration variables are defined as environment variables
 
 var COOKIE_SECRET = ""
 var MONGODB_USERNAME = ""
