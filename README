@@ -9,6 +9,8 @@ package main
 
 import "os" //You can delete this import if none of your configuration variables are defined as environment variables
 
+
+//Define these with the correct values
 var COOKIE_SECRET = ""
 var MONGODB_USERNAME = ""
 var MONGODB_PASSWORD = ""
