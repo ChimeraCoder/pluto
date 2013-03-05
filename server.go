@@ -2,12 +2,14 @@ package main
 
 import (
 	rss "./go-pkg-rss"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/gorilla/pat"
 	"github.com/gorilla/sessions"
 	"io/ioutil"
 	"labix.org/v2/mgo"
+	"labix.org/v2/mgo/bson"
 	"log"
 	"net/http"
 	"os"
@@ -65,6 +67,24 @@ func savePost(post rss.Item) error {
 	})
 }
 
+//Return a the feeds ([]rss.Item) serialized in JSON
+func serveFeeds(w http.ResponseWriter, r *http.Request) {
+	//TODO make this a proper query for the feeds we want
+	var feeds []rss.Item
+	if err := withCollection("blogposts", func(c *mgo.Collection) error {
+		return c.Find(bson.M{}).All(&feeds)
+	}); err != nil {
+		panic(err)
+	}
+	bts, err := json.Marshal(feeds)
+	if err != nil {
+		panic(err)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, string(bts))
+	return
+}
+
 func main() {
 
 	var err error
@@ -95,6 +115,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	feed_urls := strings.Split(strings.Trim(string(bts), "\n\r"), "\n")
 
 	//Set off a separate goroutine for each fellow's blog to keep it continuously up-to-date
@@ -108,7 +129,7 @@ func main() {
 	//Order of routes matters
 	//Routes *will* match prefixes 
 	http.Handle("/static/", http.FileServer(http.Dir("public")))
-	r.Get("/profile", serveProfile)
+	r.Get("/feeds/all", serveFeeds)
 	r.Get("/", serveHome)
 	http.Handle("/", r)
 
