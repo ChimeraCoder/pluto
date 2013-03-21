@@ -3,10 +3,12 @@ package main
 import (
 	rss "./go-pkg-rss"
 	"encoding/json"
+"html"
 	"flag"
 	"fmt"
 	"github.com/gorilla/pat"
 	"github.com/gorilla/sessions"
+	"html/template"
 	"io/ioutil"
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
@@ -67,8 +69,31 @@ func savePost(post rss.Item) error {
 	})
 }
 
+func servePosts(w http.ResponseWriter, r *http.Request) {
+	//TODO make this a proper query for the feeds we want
+	var posts []rss.Item
+	if err := withCollection("blogposts", func(c *mgo.Collection) error {
+		return c.Find(bson.M{}).All(&posts)
+	}); err != nil {
+		panic(err)
+	}
+
+	log.Printf("Fetching %d posts", len(posts))
+
+	//You may want to refactor this, as in renderTemplate, but this is how template inheritance works in Go
+  funcs := template.FuncMap{
+		"foo" : func(foo string) string {return foo},
+     "UnescapeString" : html.UnescapeString}
+	s1, _ := template.ParseFiles("templates/base.tmpl", "templates/posts.tmpl")
+  s1 = s1.Funcs(funcs)
+
+	s1.ExecuteTemplate(w, "base", posts)
+
+}
+
 //Return a the feeds ([]rss.Item) serialized in JSON
 func serveFeeds(w http.ResponseWriter, r *http.Request) {
+
 	//TODO make this a proper query for the feeds we want
 	var feeds []rss.Item
 	if err := withCollection("blogposts", func(c *mgo.Collection) error {
@@ -130,6 +155,7 @@ func main() {
 	//Routes *will* match prefixes 
 	http.Handle("/static/", http.FileServer(http.Dir("public")))
 	r.Get("/feeds/all", serveFeeds)
+	r.Get("/feeds/posts", servePosts)
 	r.Get("/", serveHome)
 	http.Handle("/", r)
 
