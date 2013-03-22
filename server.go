@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/gorilla/pat"
 	"github.com/gorilla/sessions"
-	"html"
 	"html/template"
 	"io/ioutil"
 	"labix.org/v2/mgo"
@@ -80,11 +79,20 @@ func servePosts(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Fetching %d posts", len(posts))
 
-	//You may want to refactor this, as in renderTemplate, but this is how template inheritance works in Go
+	renderHtml := func(raw_html string) template.HTML {
+		return template.HTML(raw_html)
+	}
+
 	funcs := template.FuncMap{
-		"foo":            func(foo string) string { return foo },
-		"UnescapeString": html.UnescapeString}
-	s1, _ := template.ParseFiles("templates/base.tmpl", "templates/posts.tmpl")
+		"RenderHtml": renderHtml,
+	}
+
+	s1 := template.New("base").Funcs(funcs)
+	s1, err := s1.ParseFiles("templates/base.tmpl", "templates/posts.tmpl")
+	//s1, err := template.ParseFiles("templates/base.tmpl", "templates/posts.tmpl")
+	if err != nil {
+		panic(err)
+	}
 	s1 = s1.Funcs(funcs)
 
 	s1.ExecuteTemplate(w, "base", posts)
@@ -147,7 +155,7 @@ func main() {
 	for _, feed_url := range feed_urls {
 		log.Printf("Found %s", feed_url)
 		go func(uri string) {
-			scrapeRss(uri)
+			//scrapeRss(uri)
 		}(feed_url)
 	}
 

@@ -6,7 +6,11 @@
 		 Title is <div class="title">{{.Title}}</div>
 		Author is <div class="author">{{.Author.Name}}</div>
 		<div class="pub-date">{{.PubDate}}</div>
-		<div class="content">{{.Description}}</div>
+		<div class="content">
+            <article>
+                {{RenderHtml .Description}}
+            </article>
+        </div>
     Categories are 
     {{range .Categories}}
 		{{.Text}}
