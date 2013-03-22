@@ -2,43 +2,37 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <title>Planet hackNY</title>
+
         <link rel="stylesheet" href="/static/foundation/css/foundation.min.css" type="text/css" />
         <link rel="stylesheet" href="/static/css/main.css" type="text/css" />
-        <title>Planet hackNY</title>
+        <script src="/static/js/jquery-1.9.1.min.js"></script>
+        <script src="/static/js/underscore.js"></script>
+        <script src="/static/js/backbone.js"></script>
+        <script src="/static/js/app.js"></script>
     </head>
     <body>
-
-        <!-- Masthead ================================================== -->
-        <header class="jumbotron subhead" id="overview">
-        <div class="row">
-            <div class="large-6">
-                <h1>lorem ispum</h1>
-                <p class="lead">lorem ipsum dolor sit amet</p>
-            </div>
-            <div class="large-6">
-                <div class="panel">
-                    lorem logo
+        <header> 
+            <div class="row">
+                <div class="large-12">
+                    <h1>Planet hackNY</h1>
+                    <dl class="sub-nav">
+                        <dd><a href="/">Home</a></dd>
+                        <dd><a href="/about">About</a></dd>
+                    </dl>
                 </div>
             </div>
-        </div>
-        <div class="subnav">
-            <ul class="nav nav-pills">
-                <li><a href="/">Home</a></li>
-                <li><a href="/about">About</a></li>
-            </ul>
-        </div>
         </header>
         <div class="container">
             <div class="row">
-                <div class="row">
+                <div class="large-9 columns">
                     {{template "body" .}}
+                </div>
+                <div class="large-3 columns sidebar">
+                    this is a sidebar whee
                 </div>
             </div>
         </div>
-			<script src="/static/js/jquery-1.9.1.min.js"></script>
-			<script src="/static/js/underscore.js"></script>
-			<script src="/static/js/backbone.js"></script>
-			<script src="/static/js/app.js"></script>
     </body>
 </html>
 {{end}}

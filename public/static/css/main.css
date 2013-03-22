@@ -1,0 +1,30 @@
+header {
+    position: relative;
+    margin-bottom: 2em;
+    padding-top: 1em;
+    background: #D11D17;
+}
+
+header, header * {
+    color: #ffffff !important;
+}
+
+header h1, header dl {
+    display: inline-block !important;
+    vertical-align: text-bottom;
+    margin-bottom: 10px !important;
+}
+
+header dl {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}
+
+header dl dd {
+    margin-left: 2em !important;
+}
+
+.sidebar {
+     background: #eee;
+}
