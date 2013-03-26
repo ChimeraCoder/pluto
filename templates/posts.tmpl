@@ -1,24 +1,19 @@
 {{define "body"}}
-<p>
-   This is just a placeholder for the posts
-{{range . }}
-	<div class="post">
-		 Title is <div class="title">{{.Title}}</div>
-		Author is <div class="author">{{.Author.Name}}</div>
-		<div class="pub-date">{{.PubDate}}</div>
-		<div class="content">
-            <article>
+    This is just a placeholder for the posts
+    {{range . }}
+        <article>
+            <h1>{{.Title}}</h1>
+            <h6>by {{.Author.Name}}</h6>
+            <div class="content">
                 {{RenderHtml .Description}}
-            </article>
-        </div>
-    Categories are 
-    {{range .Categories}}
-		{{.Text}}
-		{{end}}
-	</div>
+            </div>
+            <p class="metabox">
+                {{.PubDate}} <br/>
+                Categories:
+                {{range .Categories}}
+                    {{.Text}}
+                {{end}}
+            </p>
+        </article>
+    {{end}}
 {{end}}
-
-
-<p>
-{{end}}
-
