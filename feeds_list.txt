@@ -1,2 +1,2 @@
-http://blog.goneill.net/rss
-http://varnull.adityamukerjee.net/rss
+http://blog.goneill.net/rss	Gerard O'Neill
+http://varnull.adityamukerjee.net/rss	Aditya Mukerjee
