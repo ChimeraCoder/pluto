@@ -3,6 +3,7 @@ package main
 import (
 	rss "./go-pkg-rss"
 	"encoding/csv"
+    "regexp"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -20,6 +21,8 @@ import (
 const BCRYPT_COST = 12
 const RSS_TIMEOUT = 100
 const FEEDS_LIST_FILENAME = "feeds_list.txt"
+
+var SANITIZE_REGEX = regexp.MustCompile(`<script.*?>.*?<\/script>`)
 
 var (
 	httpAddr        = flag.String("addr", ":8000", "HTTP server address")
@@ -59,7 +62,6 @@ func customItemHandler(author string) func(*rss.Feed, *rss.Channel, []*rss.Item)
 		log.Printf("Found %d new item(s) in %s", len(newitems), feed.Url)
 		for _, item := range newitems {
 			log.Printf("Item is %+v", item)
-			log.Printf("Item author %v", item.Author)
 
 			//If the author's name isn't defined, we should add it
 			if item.Author.Name == "" {
@@ -67,7 +69,7 @@ func customItemHandler(author string) func(*rss.Feed, *rss.Channel, []*rss.Item)
 			}
 
 			log.Printf("Item author %v", item.Author)
-			//savePost(*item)
+			savePost(*item)
 		}
 	}
 }
@@ -120,6 +122,12 @@ func serveFeeds(w http.ResponseWriter, r *http.Request) {
 	}); err != nil {
 		panic(err)
 	}
+
+    items_sanitized := make([]rss.Item, len(feeds))
+    for i, item := range feeds {
+        items_sanitized[i] = sanitizeItem(item)
+    }
+
 	bts, err := json.Marshal(feeds)
 	if err != nil {
 		panic(err)
@@ -127,6 +135,17 @@ func serveFeeds(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, string(bts))
 	return
+}
+
+
+//sanitizeItem sanitizes the HTML content by removing Javascript, etc.
+//TODO make this not a terrible hack
+func sanitizeItem(item rss.Item) rss.Item{
+    //This is not currently safe to use for untrusted input, as it can be exploited trivially
+    //However, it requires thought to exploit it, so it should prevent _accidental_ javascript spillage
+    //It cannot remove javascript embedded in tag attributes (such as 'onclick:', etc.)
+    item.Description = SANITIZE_REGEX.ReplaceAllString(item.Description, "")
+    return item
 }
 
 func parseFeeds(filename string) ([][]string, error) {
