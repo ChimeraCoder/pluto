@@ -3,7 +3,6 @@ package main
 import (
 	rss "./go-pkg-rss"
 	"encoding/csv"
-    "regexp"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -15,6 +14,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"regexp"
 	"time"
 )
 
@@ -55,7 +55,6 @@ func scrapeRss(uri string, author string) {
 func chanHandler(feed *rss.Feed, newchannels []*rss.Channel) {
 	log.Printf("Found %d new channel(s) in %s", len(newchannels), feed.Url)
 }
-
 
 func customItemHandler(author string) func(*rss.Feed, *rss.Channel, []*rss.Item) {
 	return func(feed *rss.Feed, ch *rss.Channel, newitems []*rss.Item) {
@@ -123,10 +122,10 @@ func serveFeeds(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-    items_sanitized := make([]rss.Item, len(feeds))
-    for i, item := range feeds {
-        items_sanitized[i] = sanitizeItem(item)
-    }
+	items_sanitized := make([]rss.Item, len(feeds))
+	for i, item := range feeds {
+		items_sanitized[i] = sanitizeItem(item)
+	}
 
 	bts, err := json.Marshal(feeds)
 	if err != nil {
@@ -137,15 +136,14 @@ func serveFeeds(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-
 //sanitizeItem sanitizes the HTML content by removing Javascript, etc.
 //TODO make this not a terrible hack
-func sanitizeItem(item rss.Item) rss.Item{
-    //This is not currently safe to use for untrusted input, as it can be exploited trivially
-    //However, it requires thought to exploit it, so it should prevent _accidental_ javascript spillage
-    //It cannot remove javascript embedded in tag attributes (such as 'onclick:', etc.)
-    item.Description = SANITIZE_REGEX.ReplaceAllString(item.Description, "")
-    return item
+func sanitizeItem(item rss.Item) rss.Item {
+	//This is not currently safe to use for untrusted input, as it can be exploited trivially
+	//However, it requires thought to exploit it, so it should prevent _accidental_ javascript spillage
+	//It cannot remove javascript embedded in tag attributes (such as 'onclick:', etc.)
+	item.Description = SANITIZE_REGEX.ReplaceAllString(item.Description, "")
+	return item
 }
 
 func parseFeeds(filename string) ([][]string, error) {
