@@ -136,6 +136,22 @@ func serveFeeds(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+
+func serveAuthorInfo(w http.ResponseWriter, r *http.Request) {
+    var authors []rss.Author
+    if err := withCollection("blogposts", func(c *mgo.Collection) error {
+        return c.Find(bson.M{}).Distinct("author", &authors)
+    }); err != nil{
+        panic(err)
+    }
+    
+    log.Print(authors)
+    bts, _ := json.Marshal(authors)
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, string(bts))
+	return
+}
+
 //sanitizeItem sanitizes the HTML content by removing Javascript, etc.
 //TODO make this not a terrible hack
 func sanitizeItem(item rss.Item) rss.Item {
@@ -200,7 +216,7 @@ func main() {
 		feed_author := feed_info[1]
 		log.Printf("Found %s", feed_url)
 		go func(uri string, author string) {
-			scrapeRss(uri, author)
+			//scrapeRss(uri, author)
 		}(feed_url, feed_author)
 	}
 
@@ -209,6 +225,7 @@ func main() {
 	http.Handle("/static/", http.FileServer(http.Dir("public")))
 	r.Get("/feeds/all", serveFeeds)
 	r.Get("/feeds/posts", servePosts)
+	r.Get("/authors/all", serveAuthorInfo)
 	r.Get("/", serveHome)
 	http.Handle("/", r)
 
