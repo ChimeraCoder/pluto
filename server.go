@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strconv"
 	"time"
 )
 
@@ -23,6 +24,8 @@ const RSS_TIMEOUT = 100
 const FEEDS_LIST_FILENAME = "feeds_list.txt"
 
 const BLOGPOSTS_DB = "blogposts"
+
+const POSTS_PER_PAGE = 10
 
 var fetchposts = flag.Bool("fetchposts", false, "fetch blogposts and add them to the database")
 
@@ -85,10 +88,23 @@ func savePost(post rss.Item) error {
 }
 
 func servePosts(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	//Default to providing the first page
+	page := 1
+	page_s := r.FormValue("page")
+	if page_s != "" {
+		//No page specified
+		page, err = strconv.Atoi(page_s)
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	//TODO make this a proper query for the feeds we want
 	var posts []rss.Item
 	if err := withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
-		return c.Find(bson.M{}).All(&posts)
+		return c.Find(bson.M{}).Skip(POSTS_PER_PAGE * (page - 1)).Limit(POSTS_PER_PAGE).All(&posts)
 	}); err != nil {
 		panic(err)
 	}
@@ -104,7 +120,7 @@ func servePosts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s1 := template.New("base").Funcs(funcs)
-	s1, err := s1.ParseFiles("templates/base.tmpl", "templates/posts.tmpl")
+	s1, err = s1.ParseFiles("templates/base.tmpl", "templates/posts.tmpl")
 	//s1, err := template.ParseFiles("templates/base.tmpl", "templates/posts.tmpl")
 	if err != nil {
 		panic(err)
@@ -118,20 +134,35 @@ func servePosts(w http.ResponseWriter, r *http.Request) {
 //Return a the feeds ([]rss.Item) serialized in JSON
 func serveFeeds(w http.ResponseWriter, r *http.Request) {
 
+	var err error
+	//Default to providing the first page
+	page := 1
+	page_s := r.FormValue("page")
+	if page_s != "" {
+		//No page specified
+		page, err = strconv.Atoi(page_s)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	log.Printf("Page %s", page_s)
+	log.Print(page)
+
 	//TODO make this a proper query for the feeds we want
-	var feeds []rss.Item
+	var posts []rss.Item
 	if err := withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
-		return c.Find(bson.M{}).All(&feeds)
+		return c.Find(bson.M{}).Skip(POSTS_PER_PAGE * (page - 1)).Limit(POSTS_PER_PAGE).All(&posts)
 	}); err != nil {
 		panic(err)
 	}
 
-	items_sanitized := make([]rss.Item, len(feeds))
-	for i, item := range feeds {
+	items_sanitized := make([]rss.Item, len(posts))
+	for i, item := range posts {
 		items_sanitized[i] = sanitizeItem(item)
 	}
 
-	bts, err := json.Marshal(feeds)
+	bts, err := json.Marshal(posts)
 	if err != nil {
 		panic(err)
 	}
