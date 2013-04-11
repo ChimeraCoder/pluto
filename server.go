@@ -22,7 +22,7 @@ const BCRYPT_COST = 12
 const RSS_TIMEOUT = 100
 const FEEDS_LIST_FILENAME = "feeds_list.txt"
 
-const BLOGPOSTS_DB = BLOGPOSTS_DB
+const BLOGPOSTS_DB = "blogposts"
 
 var SANITIZE_REGEX = regexp.MustCompile(`<script.*?>.*?<\/script>`)
 
