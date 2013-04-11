@@ -226,9 +226,9 @@ func main() {
 	//Routes *will* match prefixes 
 	http.Handle("/static/", http.FileServer(http.Dir("public")))
 	r.Get("/feeds/all", serveFeeds)
-	r.Get("/feeds/posts", servePosts)
+	r.Get("/", servePosts)
 	r.Get("/authors/all", serveAuthorInfo)
-	r.Get("/", serveHome)
+	//r.Get("/", serveHome)
 	http.Handle("/", r)
 
 	if err := http.ListenAndServe(*httpAddr, nil); err != nil {
