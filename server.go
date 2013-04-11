@@ -24,6 +24,8 @@ const FEEDS_LIST_FILENAME = "feeds_list.txt"
 
 const BLOGPOSTS_DB = "blogposts"
 
+var fetchposts = flag.Bool("fetchposts", false, "fetch blogposts and add them to the database")
+
 var SANITIZE_REGEX = regexp.MustCompile(`<script.*?>.*?<\/script>`)
 
 var (
@@ -138,17 +140,16 @@ func serveFeeds(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-
 func serveAuthorInfo(w http.ResponseWriter, r *http.Request) {
-    var authors []rss.Author
-    if err := withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
-        return c.Find(bson.M{}).Distinct("author", &authors)
-    }); err != nil{
-        panic(err)
-    }
-    
-    log.Print(authors)
-    bts, _ := json.Marshal(authors)
+	var authors []rss.Author
+	if err := withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
+		return c.Find(bson.M{}).Distinct("author", &authors)
+	}); err != nil {
+		panic(err)
+	}
+
+	log.Print(authors)
+	bts, _ := json.Marshal(authors)
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, string(bts))
 	return
@@ -205,21 +206,25 @@ func main() {
 	}
 	mongodb_session.DB(MONGODB_DATABASE).C(BLOGPOSTS_DB).EnsureIndex(guid_index)
 
-	feeds, err := parseFeeds(FEEDS_LIST_FILENAME)
-	if err != nil {
-		panic(err)
-	}
-
-	for _, feed_info := range feeds {
-		if len(feed_info) != 2 {
-			panic(fmt.Errorf("Expect csv with 2 elements per row; received row with %d elements", len(feed_info)))
+	if *fetchposts {
+		feeds, err := parseFeeds(FEEDS_LIST_FILENAME)
+		if err != nil {
+			panic(err)
 		}
-		feed_url := feed_info[0]
-		feed_author := feed_info[1]
-		log.Printf("Found %s", feed_url)
-		go func(uri string, author string) {
-			//scrapeRss(uri, author)
-		}(feed_url, feed_author)
+
+		for _, feed_info := range feeds {
+			if len(feed_info) != 2 {
+				panic(fmt.Errorf("Expect csv with 2 elements per row; received row with %d elements", len(feed_info)))
+			}
+			feed_url := feed_info[0]
+			feed_author := feed_info[1]
+			log.Printf("Found %s", feed_url)
+			go func(uri string, author string) {
+				scrapeRss(uri, author)
+			}(feed_url, feed_author)
+		}
+	} else {
+		log.Print("Skipping fetching posts - blog posts will NOT be updated")
 	}
 
 	//Order of routes matters
