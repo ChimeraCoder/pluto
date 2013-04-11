@@ -22,6 +22,8 @@ const BCRYPT_COST = 12
 const RSS_TIMEOUT = 100
 const FEEDS_LIST_FILENAME = "feeds_list.txt"
 
+const BLOGPOSTS_DB = BLOGPOSTS_DB
+
 var SANITIZE_REGEX = regexp.MustCompile(`<script.*?>.*?<\/script>`)
 
 var (
@@ -75,7 +77,7 @@ func customItemHandler(author string) func(*rss.Feed, *rss.Channel, []*rss.Item)
 
 //Given an RSS item, save it in mongodb
 func savePost(post rss.Item) error {
-	return withCollection("blogposts", func(c *mgo.Collection) error {
+	return withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
 		return c.Insert(post)
 	})
 }
@@ -83,7 +85,7 @@ func savePost(post rss.Item) error {
 func servePosts(w http.ResponseWriter, r *http.Request) {
 	//TODO make this a proper query for the feeds we want
 	var posts []rss.Item
-	if err := withCollection("blogposts", func(c *mgo.Collection) error {
+	if err := withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
 		return c.Find(bson.M{}).All(&posts)
 	}); err != nil {
 		panic(err)
@@ -116,7 +118,7 @@ func serveFeeds(w http.ResponseWriter, r *http.Request) {
 
 	//TODO make this a proper query for the feeds we want
 	var feeds []rss.Item
-	if err := withCollection("blogposts", func(c *mgo.Collection) error {
+	if err := withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
 		return c.Find(bson.M{}).All(&feeds)
 	}); err != nil {
 		panic(err)
@@ -139,7 +141,7 @@ func serveFeeds(w http.ResponseWriter, r *http.Request) {
 
 func serveAuthorInfo(w http.ResponseWriter, r *http.Request) {
     var authors []rss.Author
-    if err := withCollection("blogposts", func(c *mgo.Collection) error {
+    if err := withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
         return c.Find(bson.M{}).Distinct("author", &authors)
     }); err != nil{
         panic(err)
@@ -201,7 +203,7 @@ func main() {
 		Background: true,
 		Sparse:     true,
 	}
-	mongodb_session.DB(MONGODB_DATABASE).C("blogposts").EnsureIndex(guid_index)
+	mongodb_session.DB(MONGODB_DATABASE).C(BLOGPOSTS_DB).EnsureIndex(guid_index)
 
 	feeds, err := parseFeeds(FEEDS_LIST_FILENAME)
 	if err != nil {
