@@ -7,7 +7,12 @@
                 {{RenderHtml .Description}}
             </div>
             <p class="metabox">
-                {{.PubDate}} <br/>
+                <script type="text/javascript">
+                    var postDate = moment("{{.PubDate}}", "ddd, DD MMM YYYY HH:mm:ss Z").format("ddd, MMM D, YYYY");
+                    var postTime = moment("{{.PubDate}}", "ddd, DD MMM YYYY HH:mm:ss Z").format("h:mm A");
+                    document.write("posted on " + postDate + " at " + postTime);
+                </script>
+                <br/>
                 Categories:
                 {{range .Categories}}
                     {{.Text}}
