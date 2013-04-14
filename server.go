@@ -262,8 +262,8 @@ func main() {
 	//Routes *will* match prefixes 
 	http.Handle("/static/", http.FileServer(http.Dir("public")))
 	r.Get("/feeds/all", serveFeeds)
-	r.Get("/", servePosts)
 	r.Get("/authors/all", serveAuthorInfo)
+	r.Get("/", servePosts)
 	//r.Get("/", serveHome)
 	http.Handle("/", r)
 
