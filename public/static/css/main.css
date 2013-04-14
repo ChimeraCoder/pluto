@@ -42,6 +42,14 @@ article h1 {
     font-size: .8em;
 }
 
+.pages {
+    margin-bottom: 2em
+}
+
+.pages .next {
+    float: right;
+}
+
 .sidebar {
      background: #eee;
 }
