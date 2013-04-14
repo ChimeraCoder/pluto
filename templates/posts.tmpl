@@ -2,7 +2,7 @@
     {{range . }}
         <article>
             <h1>{{.Title}}</h1>
-            <h6>by {{.Author.Name}}</h6>
+            <h6>by <a href="{{.Author.Uri}}">{{.Author.Name}}</a></h6>
             <div class="content">
                 {{RenderHtml .Description}}
             </div>
