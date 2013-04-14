@@ -25,13 +25,21 @@ header dl dd {
 }
 
 article {
-    margin-top: 6em;
+    margin: 3em 0em;
+    padding-bottom: 3em;
+    border-bottom: 1px solid #ccc;
 }
 
 article h1 {
     margin-bottom: .125em;
     line-height: 1.2;
     font-size: xx-large;
+}
+
+.metabox {
+    margin-top: 1em;
+    color: #aaa;
+    font-size: .8em;
 }
 
 .sidebar {
