@@ -1,12 +1,10 @@
-$(function() {
-				   
-	var Posts = Backbone.Collection.extend({
-		url: "/feeds/all"
-	});
-	// model
-	var Post = Backbone.Model.extend({
-	});
-
-	var p = new Posts;
-	p.fetch();
+$.ajax({url:"/authors/all", 
+	success:function(data){
+		console.log(data);
+		for (i=0; i<data.length; i++){
+			var html = "<li><a style='color:maroon' href="+data[i].Uri+">"+data[i].Name+"</a></li>";
+			console.log(html);
+			$(".link-list").append(html);
+		}
+	}
 });
