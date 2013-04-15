@@ -119,7 +119,10 @@ func servePosts(w http.ResponseWriter, r *http.Request) {
 		"RenderHtml": renderHtml,
 	}
 
-    authors, _ := allAuthors()
+    authors, err := allAuthors()
+    if err != nil{
+        panic(err)
+    }
 
 	s1 := template.New("base").Funcs(funcs)
 	s1, err = s1.ParseFiles("templates/base.tmpl", "templates/posts.tmpl")
@@ -191,7 +194,10 @@ func serveAuthorInfo(w http.ResponseWriter, r *http.Request) {
     }
 	
 
-	bts, _ := json.Marshal(authors)
+	bts, err := json.Marshal(authors)
+    if err != nil{
+        panic(err)
+    }
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, string(bts))
 	return
