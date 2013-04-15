@@ -106,7 +106,7 @@ func servePosts(w http.ResponseWriter, r *http.Request) {
 	//TODO make this a proper query for the feeds we want
 	var posts []rss.Item
 	if err := withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
-		return c.Find(bson.M{}).Skip(POSTS_PER_PAGE * (page - 1)).Limit(POSTS_PER_PAGE).All(&posts)
+		return c.Find(bson.M{}).Skip(POSTS_PER_PAGE * (page - 1)).Limit(POSTS_PER_PAGE).Sort("pubdate").All(&posts)
 	}); err != nil {
 		panic(err)
 	}
