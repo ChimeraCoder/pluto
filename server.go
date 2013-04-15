@@ -73,7 +73,7 @@ func customItemHandler(author string) func(*rss.Feed, *rss.Channel, []*rss.Item)
 			//If the author's name isn't defined, we should add it
 			if item.Author.Name == "" {
 				item.Author.Name = author
-                item.Author.Uri = AUTHOR_URL_REGEX.FindStringSubmatch(feed.Url)[1]
+				item.Author.Uri = AUTHOR_URL_REGEX.FindStringSubmatch(feed.Url)[1]
 			}
 
 			log.Printf("Item author %v", item.Author)
@@ -121,10 +121,10 @@ func servePosts(w http.ResponseWriter, r *http.Request) {
 		"RenderHtml": renderHtml,
 	}
 
-    authors, err := allAuthors()
-    if err != nil{
-        panic(err)
-    }
+	authors, err := allAuthors()
+	if err != nil {
+		panic(err)
+	}
 
 	s1 := template.New("base").Funcs(funcs)
 	s1, err = s1.ParseFiles("templates/base.tmpl", "templates/posts.tmpl")
@@ -134,10 +134,10 @@ func servePosts(w http.ResponseWriter, r *http.Request) {
 	}
 	s1 = s1.Funcs(funcs)
 
-	s1.ExecuteTemplate(w, "base", struct{
-        Posts []rss.Item
-        Authors []rss.Author}{posts, authors})
-    
+	s1.ExecuteTemplate(w, "base", struct {
+		Posts   []rss.Item
+		Authors []rss.Author
+	}{posts, authors})
 
 }
 
@@ -181,25 +181,23 @@ func serveFeeds(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func allAuthors() (authors []rss.Author, err error){
-    err = withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
-        return c.Find(bson.M{}).Distinct("author", &authors)
-    })
-    return
+func allAuthors() (authors []rss.Author, err error) {
+	err = withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
+		return c.Find(bson.M{}).Distinct("author", &authors)
+	})
+	return
 }
 
-
 func serveAuthorInfo(w http.ResponseWriter, r *http.Request) {
-    authors, err := allAuthors()
-    if err != nil{
-        panic(err)
-    }
-	
+	authors, err := allAuthors()
+	if err != nil {
+		panic(err)
+	}
 
 	bts, err := json.Marshal(authors)
-    if err != nil{
-        panic(err)
-    }
+	if err != nil {
+		panic(err)
+	}
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, string(bts))
 	return
@@ -232,7 +230,7 @@ func parseFeeds(filename string) ([][]string, error) {
 }
 
 func main() {
-    flag.Parse()
+	flag.Parse()
 
 	var err error
 
