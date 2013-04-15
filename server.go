@@ -230,6 +230,7 @@ func parseFeeds(filename string) ([][]string, error) {
 }
 
 func main() {
+    flag.Parse()
 
 	var err error
 
