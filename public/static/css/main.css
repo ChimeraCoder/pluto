@@ -51,16 +51,14 @@ article h1 {
 }
 
 .sidebar {
-     background: #eee;
+    background: #eee;
 }
 
 .link-list{
-	margin-right:10%;
-	list-style-type: none;
-	margin-top: 40px;
-	margin-bottom: 0px;
+    list-style-type: none;
+    padding: 2em 1em;
 }
 
 a:link {
-	COLOR: maroon;
+    COLOR: maroon;
 }

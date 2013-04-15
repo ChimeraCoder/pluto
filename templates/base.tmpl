@@ -25,15 +25,10 @@
                 </div>
             </div>
         </header>
-				   <ul class="link-list right">
-						<h3> Contributors </h3>
-     		</ul>
-    		</div>
-  			</div>
-  
+
         <div class="container">
             <div class="row">
-                <div class="large-8 large-offset-2 columns">
+                <div class="large-8 columns">
                     {{template "body" .}}
                     <nav class="pages">
                         <script type="text/javascript">
@@ -41,11 +36,11 @@
                             function getUrlVars() {
                                 var vars = {};
                                 var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
-                                    vars[key] = value;
-                                });
+                                        vars[key] = value;
+                                        });
                                 return vars;
                             }
-                            
+
                             var page = getUrlVars()['page'];
 
                             if (!page || page < 1) {
@@ -55,12 +50,17 @@
                             if (page > 1) {
                                 document.write('<a href="?page=' + (parseInt(page) - 1) + '" class="prev">&laquo; Previous Page</a>')
                             }
-    
+
 
                             // TODO: get the max page number and limit going forward
                             document.write('&nbsp;<a href="?page=' + (parseInt(page) + 1) + '" class="next">Next Page &raquo;</a>')
                         </script>
                     </nav>
+                </div>
+                <div class="large-4 sidebar columns">
+                    <ul class="link-list">
+                        <h3> Contributors </h3>
+                    </ul>
                 </div>
             </div>
         </div>
