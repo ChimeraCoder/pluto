@@ -53,3 +53,14 @@ article h1 {
 .sidebar {
      background: #eee;
 }
+
+.link-list{
+	margin-right:10%;
+	list-style-type: none;
+	margin-top: 40px;
+	margin-bottom: 0px;
+}
+
+a:link {
+	COLOR: maroon;
+}
