@@ -30,6 +30,7 @@ const POSTS_PER_PAGE = 10
 var fetchposts = flag.Bool("fetchposts", false, "fetch blogposts and add them to the database")
 
 var SANITIZE_REGEX = regexp.MustCompile(`<script.*?>.*?<\/script>`)
+var AUTHOR_URL_REGEX = regexp.MustCompile(`(.*?)\/rss`)
 
 var (
 	httpAddr        = flag.String("addr", ":8000", "HTTP server address")
@@ -72,6 +73,7 @@ func customItemHandler(author string) func(*rss.Feed, *rss.Channel, []*rss.Item)
 			//If the author's name isn't defined, we should add it
 			if item.Author.Name == "" {
 				item.Author.Name = author
+                item.Author.Uri = AUTHOR_URL_REGEX.FindStringSubmatch(feed.Url)[1]
 			}
 
 			log.Printf("Item author %v", item.Author)
