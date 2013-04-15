@@ -69,3 +69,8 @@ article h1 {
 :not(header) a {
     color: #D11D17;
 }
+
+:not(header) a:hover {
+    color: #D11D17;
+    text-decoration: underline;
+}
