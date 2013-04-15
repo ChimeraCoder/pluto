@@ -50,13 +50,20 @@ article h1 {
     float: right;
 }
 
-.sidebar {
+.sidebar.columns {
     background: #eee;
+    padding-top: 3em !important;
+    padding-bottom: 3em !important;
+}
+
+.sidebar.columns > * {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
 }
 
 .link-list{
     list-style-type: none;
-    padding: 2em 1em;
+    margin: 0px;
 }
 
 a:link {
