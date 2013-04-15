@@ -119,6 +119,8 @@ func servePosts(w http.ResponseWriter, r *http.Request) {
 		"RenderHtml": renderHtml,
 	}
 
+    authors, _ := allAuthors()
+
 	s1 := template.New("base").Funcs(funcs)
 	s1, err = s1.ParseFiles("templates/base.tmpl", "templates/posts.tmpl")
 	//s1, err := template.ParseFiles("templates/base.tmpl", "templates/posts.tmpl")
@@ -127,7 +129,10 @@ func servePosts(w http.ResponseWriter, r *http.Request) {
 	}
 	s1 = s1.Funcs(funcs)
 
-	s1.ExecuteTemplate(w, "base", posts)
+	s1.ExecuteTemplate(w, "base", struct{
+        Posts []rss.Item
+        authors []rss.Author}{posts, authors})
+    
 
 }
 
@@ -171,15 +176,21 @@ func serveFeeds(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func serveAuthorInfo(w http.ResponseWriter, r *http.Request) {
-	var authors []rss.Author
-	if err := withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
-		return c.Find(bson.M{}).Distinct("author", &authors)
-	}); err != nil {
-		panic(err)
-	}
+func allAuthors() (authors []rss.Author, err error){
+    err = withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
+        return c.Find(bson.M{}).Distinct("author", &authors)
+    })
+    return
+}
 
-	log.Print(authors)
+
+func serveAuthorInfo(w http.ResponseWriter, r *http.Request) {
+    authors, err := allAuthors()
+    if err != nil{
+        panic(err)
+    }
+	
+
 	bts, _ := json.Marshal(authors)
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, string(bts))
