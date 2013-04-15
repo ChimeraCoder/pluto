@@ -74,6 +74,16 @@ func customItemHandler(author string) func(*rss.Feed, *rss.Channel, []*rss.Item)
 			if item.Author.Name == "" {
 				item.Author.Name = author
 				item.Author.Uri = AUTHOR_URL_REGEX.FindStringSubmatch(feed.Url)[1]
+				dt, err := time.Parse("Mon Jan 2 2006 15:04:05 GMT-0700 (MST)", item.PubDate)
+				if err != nil {
+					dt, err = time.Parse("Mon, 02 Jan 2006 15:04:05 -0700", item.PubDate)
+					if err != nil {
+						log.Printf("Stupid thing is %v", item.PubDate)
+						log.Print(err)
+						panic(err)
+					}
+				}
+				item.PubDateParsed = &dt
 			}
 
 			log.Printf("Item author %v", item.Author)
@@ -106,7 +116,7 @@ func servePosts(w http.ResponseWriter, r *http.Request) {
 	//TODO make this a proper query for the feeds we want
 	var posts []rss.Item
 	if err := withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
-		return c.Find(bson.M{}).Skip(POSTS_PER_PAGE * (page - 1)).Limit(POSTS_PER_PAGE).Sort("pubdate").All(&posts)
+		return c.Find(bson.M{}).Skip(POSTS_PER_PAGE * (page - 1)).Limit(POSTS_PER_PAGE).Sort("-pubdateparsed").All(&posts)
 	}); err != nil {
 		panic(err)
 	}
