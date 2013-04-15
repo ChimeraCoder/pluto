@@ -134,7 +134,7 @@ func servePosts(w http.ResponseWriter, r *http.Request) {
 
 	s1.ExecuteTemplate(w, "base", struct{
         Posts []rss.Item
-        authors []rss.Author}{posts, authors})
+        Authors []rss.Author}{posts, authors})
     
 
 }
