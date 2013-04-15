@@ -1,3 +1,3 @@
 http://varnull.adityamukerjee.net/rss	Aditya Mukerjee
-http://blog.goneill.net/rss
-http://rubinovitz.com/rss
+http://blog.goneill.net/rss	Gerard O'Neill
+http://rubinovitz.com/rss	Jennifer Rubinovitz
