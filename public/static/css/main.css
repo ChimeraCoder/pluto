@@ -14,6 +14,10 @@ header h1, header dl {
     margin-bottom: 10px !important;
 }
 
+header h1 {
+    min-width: 50%;
+}
+
 header dl {
     position: absolute;
     right: 0;
@@ -22,6 +26,12 @@ header dl {
 
 header dl dd {
     margin-left: 2em !important;
+}
+
+header #logo {
+    height: 1em;
+    vertical-align: text-bottom;
+    margin-bottom: 5px;
 }
 
 article {
