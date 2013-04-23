@@ -1,3 +1,0 @@
-[submodule "go-pkg-rss"]
-	path = go-pkg-rss
-	url = https://github.com/jteeuwen/go-pkg-rss
