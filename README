@@ -8,7 +8,7 @@ Configuration & Setup
 
 You will need the following environment variables defined:
 
-````
+````shell
 #Any value will do, as long as it is secret and difficult to predict
 export COOKIE_SECRET=""
 
@@ -18,11 +18,10 @@ export MONGODB_PASSWORD=""
 export MONGODB_URL=""
 export MONGODB_DATABASE=""
 ````
-````
 
 If you are running the app on Heroku, run:
 
-````sh
+````shell
 heroku config:set COOKIE_SECRET=$COOKIE_SECRET MONGODB_USERNAME=$MONGODB_USERNAME MONGODB_PASSWORD=$MONGODB_PASSWORD MONGODB_URL=$MONGODB_URL MONGODB_DATABASE=$MONGODB_DATABASE
 ````
 
