@@ -74,26 +74,19 @@ func customItemHandler(author string) func(*rss.Feed, *rss.Channel, []*rss.Item)
 			if item.Author.Name == "" {
 				item.Author.Name = author
 				item.Author.Uri = AUTHOR_URL_REGEX.FindStringSubmatch(feed.Url)[1]
-				dt, err := time.Parse("Mon Jan 2 2006 15:04:05 GMT-0700 (MST)", item.PubDate)
-				if err != nil {
-					dt, err = time.Parse("Mon, 02 Jan 2006 15:04:05 -0700", item.PubDate)
-					if err != nil {
-						log.Printf("Stupid thing is %v", item.PubDate)
-						log.Print(err)
-						panic(err)
-					}
-				}
-				item.PubDateParsed = &dt
 			}
 
-			log.Printf("Item author %v", item.Author)
-			savePost(*item)
+			item_updated, err := NewItem(*item)
+			if err != nil {
+				panic(err)
+			}
+			savePost(item_updated)
 		}
 	}
 }
 
 //Given an RSS item, save it in mongodb
-func savePost(post rss.Item) error {
+func savePost(post Item) error {
 	return withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
 		return c.Insert(post)
 	})
@@ -114,7 +107,7 @@ func servePosts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//TODO make this a proper query for the feeds we want
-	var posts []rss.Item
+	var posts []Item
 	if err := withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
 		return c.Find(bson.M{}).Skip(POSTS_PER_PAGE * (page - 1)).Limit(POSTS_PER_PAGE).Sort("-pubdateparsed").All(&posts)
 	}); err != nil {
@@ -145,7 +138,7 @@ func servePosts(w http.ResponseWriter, r *http.Request) {
 	s1 = s1.Funcs(funcs)
 
 	s1.ExecuteTemplate(w, "base", struct {
-		Posts   []rss.Item
+		Posts   []Item
 		Authors []rss.Author
 	}{posts, authors})
 
@@ -170,14 +163,14 @@ func serveFeeds(w http.ResponseWriter, r *http.Request) {
 	log.Print(page)
 
 	//TODO make this a proper query for the feeds we want
-	var posts []rss.Item
+	var posts []Item
 	if err := withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
 		return c.Find(bson.M{}).Skip(POSTS_PER_PAGE * (page - 1)).Limit(POSTS_PER_PAGE).All(&posts)
 	}); err != nil {
 		panic(err)
 	}
 
-	items_sanitized := make([]rss.Item, len(posts))
+	items_sanitized := make([]Item, len(posts))
 	for i, item := range posts {
 		items_sanitized[i] = sanitizeItem(item)
 	}
@@ -215,7 +208,7 @@ func serveAuthorInfo(w http.ResponseWriter, r *http.Request) {
 
 //sanitizeItem sanitizes the HTML content by removing Javascript, etc.
 //TODO make this not a terrible hack
-func sanitizeItem(item rss.Item) rss.Item {
+func sanitizeItem(item Item) Item {
 	//This is not currently safe to use for untrusted input, as it can be exploited trivially
 	//However, it requires thought to exploit it, so it should prevent _accidental_ javascript spillage
 	//It cannot remove javascript embedded in tag attributes (such as 'onclick:', etc.)
