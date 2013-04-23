@@ -1,3 +1,7 @@
+Pluto
+=============
+Pluto is a blog aggregator written in Go, with Foundation styling to get you started. Pluto powers [Planet HackNY](https://github.com/ChimeraCoder/Planet-hackNYi "Planet HackNY").
+
 Configuration & Setup
 -----------------------
 
