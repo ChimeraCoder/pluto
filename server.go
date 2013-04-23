@@ -37,14 +37,11 @@ var (
 	baseTmpl string = "templates/base.tmpl"
 	store           = sessions.NewCookieStore([]byte(COOKIE_SECRET))
 
-	//The following three variables can be defined using environment variables
-	//to avoid committing them by mistake
-	//Alternatively, place variable declarations in a separate conf.go file
-	//which is already in the .gitignore file
-
-	//COOKIE_SECRET = []byte(os.Getenv("COOKIE_SECRET"))
-	//APP_ID = os.Getenv("APP_ID")
-	//APP_SECRET = os.Getenv("APP_SECRET")
+	COOKIE_SECRET    = []byte(os.Getenv("COOKIE_SECRET"))
+	MONGODB_URL      = os.Getenv("MONGODB_URL")
+	MONGODB_USERNAME = os.Getenv("MONGODB_USERNAME")
+	MONGODB_PASSWORD = os.Getenv("MONGODB_PASSWORD")
+	MONGODB_DATABASE = os.Getenv("MONGODB_DATABASE")
 )
 
 func scrapeRss(uri string, author string) {
