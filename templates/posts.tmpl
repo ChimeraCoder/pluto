@@ -8,8 +8,8 @@
             </div>
             <p class="metabox">
                 <script type="text/javascript">
-                    var postDate = moment("{{.PubDateParsed.String}}", "ddd, DD MMM YYYY HH:mm:ss Z").format("ddd, MMM D, YYYY");
-                    var postTime = moment("{{.PubDateParsed.String}}", "ddd, DD MMM YYYY HH:mm:ss Z").format("h:mm A");
+                    var postDate = moment("{{.PubDateParsed.String}}", "YYYY-MM-DD HH:mm:ss Z").format("ddd, MMM D, YYYY");
+                    var postTime = moment("{{.PubDateParsed.String}}", "YYYY-MM-DD HH:mm:ss Z").format("h:mm A");
                     document.write("posted on " + postDate + " at " + postTime);
                 </script>
                 <br/>
