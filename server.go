@@ -1,13 +1,13 @@
 package main
 
 import (
-	rss "github.com/jteeuwen/go-pkg-rss"
 	"encoding/csv"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/gorilla/pat"
 	"github.com/gorilla/sessions"
+	rss "github.com/jteeuwen/go-pkg-rss"
 	"html/template"
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
@@ -234,6 +234,11 @@ func parseFeeds(filename string) ([][]string, error) {
 
 func main() {
 	flag.Parse()
+
+	port_env := os.Getenv("PORT")
+	if port_env != "" {
+		*httpAddr = ":" + port_env
+	}
 
 	var err error
 
