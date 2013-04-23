@@ -1,7 +1,7 @@
 package main
 
 import (
-	rss "./go-pkg-rss"
+	rss "github.com/jteeuwen/go-pkg-rss"
 	"encoding/csv"
 	"encoding/json"
 	"flag"
