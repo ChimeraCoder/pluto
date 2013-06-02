@@ -47,7 +47,7 @@ var (
 	//APP_SECRET = os.Getenv("APP_SECRET")
 )
 
-func scrapeRss(uri string, author string) {
+func scrapeFeed(uri string, author string) {
 	feed := rss.New(RSS_TIMEOUT, true, chanHandler, customItemHandler(author))
 	for {
 		if err := feed.Fetch(uri, nil); err != nil {
@@ -272,7 +272,7 @@ func main() {
 			feed_author := feed_info[1]
 			log.Printf("Found %s", feed_url)
 			go func(uri string, author string) {
-				scrapeRss(uri, author)
+				scrapeFeed(uri, author)
 			}(feed_url, feed_author)
 		}
 	} else {
