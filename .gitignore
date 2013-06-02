@@ -4,6 +4,5 @@
 *.db
 *.log
 build/
-conf.go
 conf.sh
 go-pkg-rss

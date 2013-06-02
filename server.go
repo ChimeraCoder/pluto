@@ -1,13 +1,13 @@
 package main
 
 import (
-	rss "github.com/jteeuwen/go-pkg-rss"
 	"encoding/csv"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/gorilla/pat"
 	"github.com/gorilla/sessions"
+	rss "github.com/jteeuwen/go-pkg-rss"
 	"html/template"
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
@@ -23,19 +23,18 @@ const BCRYPT_COST = 12
 const RSS_TIMEOUT = 100
 const FEEDS_LIST_FILENAME = "feeds_list.txt"
 
-const BLOGPOSTS_DB = "blogposts"
+const BLOGPOSTS_COL = "blogposts"
 
 const POSTS_PER_PAGE = 10
 
-var fetchposts = flag.Bool("fetchposts", false, "fetch blogposts and add them to the database")
-
-var SANITIZE_REGEX = regexp.MustCompile(`<script.*?>.*?<\/script>`)
-var AUTHOR_URL_REGEX = regexp.MustCompile(`(.*?)\/rss`)
-
 var (
-	httpAddr        = flag.String("addr", ":8000", "HTTP server address")
-	baseTmpl string = "templates/base.tmpl"
-	store           = sessions.NewCookieStore([]byte(COOKIE_SECRET))
+	httpAddr                = flag.String("addr", "localhost:8000", "HTTP server address")
+	configFile              = flag.String("conf", "conf.yml", "Config file location")
+	fetchposts              = flag.Bool("fetchposts", false, "fetch blogposts and add them to the database")
+	store                   = sessions.NewCookieStore([]byte(COOKIE_SECRET))
+	baseTmpl         string = "templates/base.tmpl"
+	SANITIZE_REGEX          = regexp.MustCompile(`<script.*?>.*?<\/script>`)
+	AUTHOR_URL_REGEX        = regexp.MustCompile(`(.*?)\/rss`)
 
 	//The following three variables can be defined using environment variables
 	//to avoid committing them by mistake
@@ -47,7 +46,7 @@ var (
 	//APP_SECRET = os.Getenv("APP_SECRET")
 )
 
-func scrapeRss(uri string, author string) {
+func scrapeFeed(uri string, author string) {
 	feed := rss.New(RSS_TIMEOUT, true, chanHandler, customItemHandler(author))
 	for {
 		if err := feed.Fetch(uri, nil); err != nil {
@@ -87,7 +86,7 @@ func customItemHandler(author string) func(*rss.Feed, *rss.Channel, []*rss.Item)
 
 //Given an RSS item, save it in mongodb
 func savePost(post Item) error {
-	return withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
+	return withCollection(BLOGPOSTS_COL, func(c *mgo.Collection) error {
 		return c.Insert(post)
 	})
 }
@@ -99,7 +98,7 @@ func servePosts(w http.ResponseWriter, r *http.Request) {
 	page := 1
 	page_s := r.FormValue("page")
 	if page_s != "" {
-		//No page specified
+		//page specified
 		page, err = strconv.Atoi(page_s)
 		if err != nil {
 			panic(err)
@@ -108,7 +107,7 @@ func servePosts(w http.ResponseWriter, r *http.Request) {
 
 	//TODO make this a proper query for the feeds we want
 	var posts []Item
-	if err := withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
+	if err := withCollection(BLOGPOSTS_COL, func(c *mgo.Collection) error {
 		return c.Find(bson.M{}).Skip(POSTS_PER_PAGE * (page - 1)).Limit(POSTS_PER_PAGE).Sort("-pubdateparsed").All(&posts)
 	}); err != nil {
 		panic(err)
@@ -164,7 +163,7 @@ func serveFeeds(w http.ResponseWriter, r *http.Request) {
 
 	//TODO make this a proper query for the feeds we want
 	var posts []Item
-	if err := withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
+	if err := withCollection(BLOGPOSTS_COL, func(c *mgo.Collection) error {
 		return c.Find(bson.M{}).Skip(POSTS_PER_PAGE * (page - 1)).Limit(POSTS_PER_PAGE).All(&posts)
 	}); err != nil {
 		panic(err)
@@ -185,7 +184,7 @@ func serveFeeds(w http.ResponseWriter, r *http.Request) {
 }
 
 func allAuthors() (authors []rss.Author, err error) {
-	err = withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
+	err = withCollection(BLOGPOSTS_COL, func(c *mgo.Collection) error {
 		return c.Find(bson.M{}).Distinct("author", &authors)
 	})
 	return
@@ -233,18 +232,21 @@ func parseFeeds(filename string) ([][]string, error) {
 }
 
 func main() {
+	log.Printf("Parsing config file: %v", *configFile)
+	parseConfigFile(*configFile)
 	flag.Parse()
-
 	var err error
-
-	log.Print("Dialing mongodb database")
+	log.Printf("Dialing mongodb database at: %v", MONGODB_URL)
 	mongodb_session, err = mgo.Dial(MONGODB_URL)
 	if err != nil {
 		panic(err)
 	}
-	log.Print("Succesfully dialed mongodb database")
-
-	err = mongodb_session.DB(MONGODB_DATABASE).Login(MONGODB_USERNAME, MONGODB_PASSWORD)
+	if auth {
+		err = mongodb_session.DB(MONGODB_DATABASE).Login(MONGODB_USERNAME, MONGODB_PASSWORD)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 
 	r := pat.New()
 	//Create a unique index on 'guid', so that entires will not be duplicated
@@ -256,7 +258,7 @@ func main() {
 		Background: true,
 		Sparse:     true,
 	}
-	mongodb_session.DB(MONGODB_DATABASE).C(BLOGPOSTS_DB).EnsureIndex(guid_index)
+	mongodb_session.DB(MONGODB_DATABASE).C(BLOGPOSTS_COL).EnsureIndex(guid_index)
 
 	if *fetchposts {
 		feeds, err := parseFeeds(FEEDS_LIST_FILENAME)
@@ -272,7 +274,7 @@ func main() {
 			feed_author := feed_info[1]
 			log.Printf("Found %s", feed_url)
 			go func(uri string, author string) {
-				scrapeRss(uri, author)
+				scrapeFeed(uri, author)
 			}(feed_url, feed_author)
 		}
 	} else {
@@ -280,14 +282,14 @@ func main() {
 	}
 
 	//Order of routes matters
-	//Routes *will* match prefixes 
+	//Routes *will* match prefixes
 	http.Handle("/static/", http.FileServer(http.Dir("public")))
 	r.Get("/feeds/all", serveFeeds)
 	r.Get("/authors/all", serveAuthorInfo)
 	r.Get("/", servePosts)
 	//r.Get("/", serveHome)
 	http.Handle("/", r)
-
+	log.Printf("Starting HTTP server listening on %v", *httpAddr)
 	if err := http.ListenAndServe(*httpAddr, nil); err != nil {
 		log.Fatalf("Error listening, %v", err)
 	}

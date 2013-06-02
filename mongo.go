@@ -15,8 +15,14 @@ func mongodbSession() *mgo.Session {
 		if err != nil {
 			panic(err)
 		}
-		if err := mongodb_session.DB(MONGODB_DATABASE).Login(MONGODB_USERNAME, MONGODB_PASSWORD); err != nil {
-			panic(err)
+		if auth {
+			if err := mongodb_session.DB(MONGODB_DATABASE).Login(MONGODB_USERNAME, MONGODB_PASSWORD); err != nil {
+				panic(err)
+			}
+		} else {
+			if err := mongodb_session.DB(MONGODB_DATABASE); err != nil {
+				panic(err)
+			}
 		}
 	}
 	return mongodb_session.Clone()
