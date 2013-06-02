@@ -1,13 +1,13 @@
 package main
 
 import (
-	rss "github.com/jteeuwen/go-pkg-rss"
 	"encoding/csv"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/gorilla/pat"
 	"github.com/gorilla/sessions"
+	rss "github.com/jteeuwen/go-pkg-rss"
 	"html/template"
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
@@ -280,7 +280,7 @@ func main() {
 	}
 
 	//Order of routes matters
-	//Routes *will* match prefixes 
+	//Routes *will* match prefixes
 	http.Handle("/static/", http.FileServer(http.Dir("public")))
 	r.Get("/feeds/all", serveFeeds)
 	r.Get("/authors/all", serveAuthorInfo)
