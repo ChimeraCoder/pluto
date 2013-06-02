@@ -23,7 +23,7 @@ const BCRYPT_COST = 12
 const RSS_TIMEOUT = 100
 const FEEDS_LIST_FILENAME = "feeds_list.txt"
 
-const BLOGPOSTS_DB = "blogposts"
+const BLOGPOSTS_COL = "blogposts"
 
 const POSTS_PER_PAGE = 10
 
@@ -87,7 +87,7 @@ func customItemHandler(author string) func(*rss.Feed, *rss.Channel, []*rss.Item)
 
 //Given an RSS item, save it in mongodb
 func savePost(post Item) error {
-	return withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
+	return withCollection(BLOGPOSTS_COL, func(c *mgo.Collection) error {
 		return c.Insert(post)
 	})
 }
@@ -108,7 +108,7 @@ func servePosts(w http.ResponseWriter, r *http.Request) {
 
 	//TODO make this a proper query for the feeds we want
 	var posts []Item
-	if err := withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
+	if err := withCollection(BLOGPOSTS_COL, func(c *mgo.Collection) error {
 		return c.Find(bson.M{}).Skip(POSTS_PER_PAGE * (page - 1)).Limit(POSTS_PER_PAGE).Sort("-pubdateparsed").All(&posts)
 	}); err != nil {
 		panic(err)
@@ -164,7 +164,7 @@ func serveFeeds(w http.ResponseWriter, r *http.Request) {
 
 	//TODO make this a proper query for the feeds we want
 	var posts []Item
-	if err := withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
+	if err := withCollection(BLOGPOSTS_COL, func(c *mgo.Collection) error {
 		return c.Find(bson.M{}).Skip(POSTS_PER_PAGE * (page - 1)).Limit(POSTS_PER_PAGE).All(&posts)
 	}); err != nil {
 		panic(err)
@@ -185,7 +185,7 @@ func serveFeeds(w http.ResponseWriter, r *http.Request) {
 }
 
 func allAuthors() (authors []rss.Author, err error) {
-	err = withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
+	err = withCollection(BLOGPOSTS_COL, func(c *mgo.Collection) error {
 		return c.Find(bson.M{}).Distinct("author", &authors)
 	})
 	return
@@ -256,7 +256,7 @@ func main() {
 		Background: true,
 		Sparse:     true,
 	}
-	mongodb_session.DB(MONGODB_DATABASE).C(BLOGPOSTS_DB).EnsureIndex(guid_index)
+	mongodb_session.DB(MONGODB_DATABASE).C(BLOGPOSTS_COL).EnsureIndex(guid_index)
 
 	if *fetchposts {
 		feeds, err := parseFeeds(FEEDS_LIST_FILENAME)
