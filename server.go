@@ -27,15 +27,14 @@ const BLOGPOSTS_COL = "blogposts"
 
 const POSTS_PER_PAGE = 10
 
-var fetchposts = flag.Bool("fetchposts", false, "fetch blogposts and add them to the database")
-
-var SANITIZE_REGEX = regexp.MustCompile(`<script.*?>.*?<\/script>`)
-var AUTHOR_URL_REGEX = regexp.MustCompile(`(.*?)\/rss`)
-
 var (
-	httpAddr        = flag.String("addr", "localhost:8000", "HTTP server address")
-	baseTmpl string = "templates/base.tmpl"
-	store           = sessions.NewCookieStore([]byte(COOKIE_SECRET))
+	httpAddr                = flag.String("addr", "localhost:8000", "HTTP server address")
+	configFile              = flag.String("conf", "conf.yml", "Config file location")
+	fetchposts              = flag.Bool("fetchposts", false, "fetch blogposts and add them to the database")
+	store                   = sessions.NewCookieStore([]byte(COOKIE_SECRET))
+	baseTmpl         string = "templates/base.tmpl"
+	SANITIZE_REGEX          = regexp.MustCompile(`<script.*?>.*?<\/script>`)
+	AUTHOR_URL_REGEX        = regexp.MustCompile(`(.*?)\/rss`)
 
 	//The following three variables can be defined using environment variables
 	//to avoid committing them by mistake
@@ -99,7 +98,7 @@ func servePosts(w http.ResponseWriter, r *http.Request) {
 	page := 1
 	page_s := r.FormValue("page")
 	if page_s != "" {
-		//No page specified
+		//page specified
 		page, err = strconv.Atoi(page_s)
 		if err != nil {
 			panic(err)
@@ -233,18 +232,21 @@ func parseFeeds(filename string) ([][]string, error) {
 }
 
 func main() {
+	log.Printf("Parsing config file: %v", *configFile)
+	parseConfigFile(*configFile)
 	flag.Parse()
-
 	var err error
-
-	log.Print("Dialing mongodb database")
+	log.Printf("Dialing mongodb database at: %v", MONGODB_URL)
 	mongodb_session, err = mgo.Dial(MONGODB_URL)
 	if err != nil {
 		panic(err)
 	}
-	log.Print("Succesfully dialed mongodb database")
-
-	err = mongodb_session.DB(MONGODB_DATABASE).Login(MONGODB_USERNAME, MONGODB_PASSWORD)
+	if auth {
+		err = mongodb_session.DB(MONGODB_DATABASE).Login(MONGODB_USERNAME, MONGODB_PASSWORD)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 
 	r := pat.New()
 	//Create a unique index on 'guid', so that entires will not be duplicated
