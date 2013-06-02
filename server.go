@@ -33,7 +33,7 @@ var SANITIZE_REGEX = regexp.MustCompile(`<script.*?>.*?<\/script>`)
 var AUTHOR_URL_REGEX = regexp.MustCompile(`(.*?)\/rss`)
 
 var (
-	httpAddr        = flag.String("addr", ":8000", "HTTP server address")
+	httpAddr        = flag.String("addr", "localhost:8000", "HTTP server address")
 	baseTmpl string = "templates/base.tmpl"
 	store           = sessions.NewCookieStore([]byte(COOKIE_SECRET))
 
@@ -287,7 +287,7 @@ func main() {
 	r.Get("/", servePosts)
 	//r.Get("/", serveHome)
 	http.Handle("/", r)
-
+	log.Printf("Starting HTTP server listening on %v", *httpAddr)
 	if err := http.ListenAndServe(*httpAddr, nil); err != nil {
 		log.Fatalf("Error listening, %v", err)
 	}
