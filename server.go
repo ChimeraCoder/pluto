@@ -229,6 +229,14 @@ func parseFeeds(filename string) ([][]string, error) {
 	return rows, err
 }
 
+func serveAbout(w http.ResponseWriter, r *http.Request) {
+	s1, err := template.ParseFiles("templates/base.tmpl", "templates/about.tmpl")
+	if err != nil {
+		panic(err)
+	}
+	s1.ExecuteTemplate(w, "base", nil)
+}
+
 func main() {
 	flag.Parse()
 

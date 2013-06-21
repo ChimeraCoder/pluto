@@ -27,11 +27,18 @@ type Item struct {
 
 func NewItem(old rss.Item) (it Item, err error) {
 	//Try to parse the date of publication, so we don't have to store it as a basic string
+	//TODO this is super-hacky... yuck
 	dt, err := time.Parse("Mon Jan 2 2006 15:04:05 GMT-0700 (MST)", old.PubDate)
 	if err != nil {
 		dt, err = time.Parse("Mon, 02 Jan 2006 15:04:05 -0700", old.PubDate)
 		if err != nil {
-			return
+			dt, err = time.Parse("2006-01-02T15:04:05-07:00", old.PubDate)
+			if err != nil {
+				dt, err = time.Parse("Mon, 02 Jan 2006 15:04:05 GMT", old.PubDate)
+				if err != nil {
+					return
+				}
+			}
 		}
 	}
 	it = Item{old.Title, old.Links, old.Description, old.Author, old.Categories, old.Comments, old.Enclosures, old.Guid, &dt, old.Source, old.Id, old.Generator, old.Contributors, old.Content}
