@@ -247,6 +247,9 @@ func main() {
 	log.Print("Succesfully dialed mongodb database")
 
 	err = mongodb_session.DB(MONGODB_DATABASE).Login(MONGODB_USERNAME, MONGODB_PASSWORD)
+	if err != nil {
+		panic(err)
+	}
 
 	r := pat.New()
 	//Create a unique index on 'guid', so that entires will not be duplicated
