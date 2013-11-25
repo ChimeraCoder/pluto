@@ -246,9 +246,13 @@ func main() {
 	}
 	log.Print("Succesfully dialed mongodb database")
 
-	err = mongodb_session.DB(MONGODB_DATABASE).Login(MONGODB_USERNAME, MONGODB_PASSWORD)
-	if err != nil {
-		panic(err)
+	if !(MONGODB_USERNAME == "" && MONGODB_PASSWORD == "") {
+		err = mongodb_session.DB(MONGODB_DATABASE).Login(MONGODB_USERNAME, MONGODB_PASSWORD)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		log.Print("MONGODB_USERNAME and MONGODB_PASSWORD are both empty -- skipping authentication")
 	}
 
 	r := pat.New()
@@ -285,7 +289,7 @@ func main() {
 	}
 
 	//Order of routes matters
-	//Routes *will* match prefixes 
+	//Routes *will* match prefixes
 	http.Handle("/static/", http.FileServer(http.Dir("public")))
 	r.Get("/feeds/all", serveFeeds)
 	r.Get("/authors/all", serveAuthorInfo)
