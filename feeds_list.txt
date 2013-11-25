@@ -1,4 +1,1 @@
-http://www.processthings.com/rss	Dan Mundy
-http://varnull.adityamukerjee.net/rss	Aditya Mukerjee
-http://blog.goneill.net/rss	Gerard O'Neill
-http://rubinovitz.com/rss	Jennifer Rubinovitz
+https://github.com/ChimeraCoder/pluto/commits/master.atom	Pluto
