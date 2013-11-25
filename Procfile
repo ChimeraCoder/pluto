@@ -1,1 +1,1 @@
-web: Planet-hackNY
+web: pluto -fetchposts
