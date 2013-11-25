@@ -113,6 +113,13 @@ func servePosts(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Fetching %d posts", len(posts))
 
+    // Atom posts like Github's store content in Content.Text, not Description
+	for i, post := range posts {
+		if post.Description == "" && post.Content != nil {
+			posts[i].Description = post.Content.Text
+		}
+	}
+
 	renderHtml := func(raw_html string) template.HTML {
 		return template.HTML(raw_html)
 	}
