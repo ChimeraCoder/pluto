@@ -1,7 +1,7 @@
 header {
     position: relative;
     padding-top: 1em;
-    background: #D11D17;
+    background: #3B007A;
 }
 
 header, header * {
@@ -77,10 +77,10 @@ article h1 {
 }
 
 :not(header) a {
-    color: #D11D17;
+    color: #3B007A;
 }
 
 :not(header) a:hover {
-    color: #D11D17;
+    color: #3B007A;
     text-decoration: underline;
 }
