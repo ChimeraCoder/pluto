@@ -65,7 +65,7 @@ func customItemHandler(author string) func(*rss.Feed, *rss.Channel, []*rss.Item)
 	return func(feed *rss.Feed, ch *rss.Channel, newitems []*rss.Item) {
 		log.Printf("Found %d new item(s) in %s", len(newitems), feed.Url)
 		for _, item := range newitems {
-			log.Printf("Item is %+v", item)
+			log.Printf("Item is %+v\n\n", item)
 
 			//If the author's name isn't defined, we should add it
 			if item.Author.Name == "" {
