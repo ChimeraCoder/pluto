@@ -14,7 +14,7 @@ type Item struct {
 	Categories    []*rss.Category
 	Comments      string
 	Enclosures    []*rss.Enclosure
-	Guid          *string
+    Guid          *string `json:",omitempty"`
 	PubDateParsed *time.Time
 	Source        *rss.Source
 
