@@ -14,7 +14,7 @@ type Item struct {
 	Categories    []*rss.Category
 	Comments      string
 	Enclosures    []*rss.Enclosure
-    Guid          *string `bson:",omitempty"`
+	Guid          *string `bson:",omitempty"`
 	PubDateParsed *time.Time
 	Source        *rss.Source
 
@@ -42,12 +42,6 @@ func NewItem(old rss.Item) (it Item, err error) {
 		}
 	}
 
-	// Some atom feeds (like Github) return an empty string for the GUID
-	var newGuid *string
-	if old.Guid != "" {
-		newGuid = &old.Guid
-	}
-
-	it = Item{old.Title, old.Links, old.Description, old.Author, old.Categories, old.Comments, old.Enclosures, newGuid, &dt, old.Source, old.Id, old.Generator, old.Contributors, old.Content}
+	it = Item{old.Title, old.Links, old.Description, old.Author, old.Categories, old.Comments, old.Enclosures, old.Guid, &dt, old.Source, old.Id, old.Generator, old.Contributors, old.Content}
 	return
 }

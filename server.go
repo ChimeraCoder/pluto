@@ -113,7 +113,7 @@ func servePosts(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Fetching %d posts", len(posts))
 
-    // Atom posts like Github's store content in Content.Text, not Description
+	// Atom posts like Github's store content in Content.Text, not Description
 	for i, post := range posts {
 		if post.Description == "" && post.Content != nil {
 			posts[i].Description = post.Content.Text
@@ -254,7 +254,7 @@ func main() {
 
 	var err error
 
-	log.Print("Dialing mongodb database")
+	log.Print("Dialing mongodb database at %s", MONGODB_URL)
 	mongodb_session, err = mgo.Dial(MONGODB_URL)
 	if err != nil {
 		panic(err)
@@ -271,16 +271,21 @@ func main() {
 	}
 
 	r := pat.New()
-	//Create a unique index on 'guid', so that entires will not be duplicated
+	//Create a unique index on 'guid' and 'id', so that entires will not be duplicated
 	//Any duplicate entries will be dropped silently when insertion is attempted
-	guid_index := mgo.Index{
-		Key:        []string{"guid"},
-		Unique:     true,
-		DropDups:   true,
-		Background: true,
-		Sparse:     true,
+
+	uniqueFields := []string{"guid", "id"}
+	for _, field := range uniqueFields {
+		guid_index := mgo.Index{
+			Key:        []string{field},
+			Unique:     true,
+			DropDups:   true,
+			Background: true,
+			Sparse:     true,
+		}
+
+		mongodb_session.DB(MONGODB_DATABASE).C(BLOGPOSTS_DB).EnsureIndex(guid_index)
 	}
-	mongodb_session.DB(MONGODB_DATABASE).C(BLOGPOSTS_DB).EnsureIndex(guid_index)
 
 	if *fetchposts {
 		feeds, err := parseFeeds(FEEDS_LIST_FILENAME)
