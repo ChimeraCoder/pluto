@@ -25,6 +25,14 @@ type Item struct {
 	Content      *rss.Content
 }
 
+func (i Item) FirstLink() (link rss.Link){
+    if len(i.Links) == 0 || i.Links[0] == nil{
+        return
+    }
+    return *i.Links[0]
+}
+
+
 func NewItem(old rss.Item) (it Item, err error) {
 	//Try to parse the date of publication, so we don't have to store it as a basic string
 	//TODO this is super-hacky... yuck

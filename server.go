@@ -254,7 +254,7 @@ func main() {
 
 	var err error
 
-	log.Print("Dialing mongodb database at %s", MONGODB_URL)
+	log.Printf("Dialing mongodb database at %s", MONGODB_URL)
 	mongodb_session, err = mgo.Dial(MONGODB_URL)
 	if err != nil {
 		panic(err)
