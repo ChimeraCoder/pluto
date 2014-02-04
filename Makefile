@@ -1,6 +1,6 @@
 compile:
-	go build -o build/a.out server.go conf.go mongo.go views.go planet_item.go
+	go build -o build/pluto server.go conf.go mongo.go views.go planet_item.go
 
 clean:
 	go clean
-	find build/ -name *.out -delete
+	find build/ -name pluto -delete
