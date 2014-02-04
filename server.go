@@ -28,6 +28,7 @@ const BLOGPOSTS_DB = "blogposts"
 const POSTS_PER_PAGE = 10
 
 var fetchposts = flag.Bool("fetchposts", false, "fetch blogposts and add them to the database")
+var updatefeed = flag.String("updatefeed", "", "marks a feed for re-downloading given an author name")
 
 var SANITIZE_REGEX = regexp.MustCompile(`<script.*?>.*?<\/script>`)
 var AUTHOR_URL_REGEX = regexp.MustCompile(`(.*?)\/rss`)
@@ -87,6 +88,19 @@ func savePost(post Item) error {
 	return withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
 		return c.Insert(post)
 	})
+}
+
+//Given a feed, remove all items from mongodb
+func removeAuthor(author string) error {
+    // Mongo equiv: db.blogposts.find({"author.name": "Dan Mundy"})
+    query := map[string] string {
+        "author.name": author,
+    }
+
+    return withCollection(BLOGPOSTS_DB, func(c *mgo.Collection) error {
+        _, err := c.RemoveAll(query)
+        return err
+    })
 }
 
 func servePosts(w http.ResponseWriter, r *http.Request) {
@@ -286,6 +300,16 @@ func main() {
 
 		mongodb_session.DB(MONGODB_DATABASE).C(BLOGPOSTS_DB).EnsureIndex(guid_index)
 	}
+
+    if *updatefeed != "" {
+        if err != nil {
+            panic(err)
+        }
+
+        log.Print("Removing all items by %s", *updatefeed)
+        removeAuthor(*updatefeed)
+        *fetchposts = true
+    }
 
 	if *fetchposts {
 		feeds, err := parseFeeds(FEEDS_LIST_FILENAME)
